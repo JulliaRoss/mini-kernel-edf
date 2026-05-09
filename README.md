@@ -16,10 +16,10 @@ Simular a execução dinâmica de processos utilizando:
 
 # Integrantes
 
-- Nome 1
-- Nome 2
-- Nome 3
-- Nome 4
+- Jullia Ross
+- Guilehrme Messer
+- Matheus Zanchetta
+- Lucas Vinhatti
 
 ---
 
@@ -99,10 +99,10 @@ A tarefa com menor deadline absoluto possui maior prioridade.
 # Divisão de Responsabilidades
 
 ## Parser
-Responsável: Fulano
+Responsável: Jullia Ross
 
 ## CPU
-Responsável: Fulano
+Responsável: Guilherme Messer
 
 ## Scheduler EDF
 Responsável: Fulano
