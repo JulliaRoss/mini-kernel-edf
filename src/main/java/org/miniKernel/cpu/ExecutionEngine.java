@@ -1,6 +1,9 @@
 package org.miniKernel.cpu;
 
-import org.miniKernel.model.*;
+import org.miniKernel.model.ExecutionResult;
+import org.miniKernel.model.Instruction;
+import org.miniKernel.model.Process;
+import org.miniKernel.model.ProcessState;
 import java.util.Random;
 
 public class ExecutionEngine {
