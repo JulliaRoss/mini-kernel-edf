@@ -46,4 +46,9 @@ public class Process {
     public Memory getMemory() { return memory; }
     public int getBlockedUntil() { return blockedUntil; }
     public void setBlockedUntil(int blockedUntil) { this.blockedUntil = blockedUntil; }
+
+    @Override
+    public String toString() {
+        return "Process{name='" + name + "', state=" + state + ", pc=" + pc + ", acc=" + acc + "}";
+    }
 }

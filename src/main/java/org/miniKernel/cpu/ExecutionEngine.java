@@ -34,32 +34,36 @@ public class ExecutionEngine {
                 process.setPc(process.getPc() + 1);
             }
             case "DIV" -> {
-                process.setAcc(process.getAcc() / resolveValue(process, operand, immediate));
+                int divisor = resolveValue(process, operand, immediate);
+                if (divisor == 0) {
+                    throw new RuntimeException("Divisão por zero no processo: " + process.getName());
+                }
+                process.setAcc(process.getAcc() / divisor);
                 process.setPc(process.getPc() + 1);
             }
             case "BRPOS" -> {
                 if (process.getAcc() > 0) {
-                    process.setPc(process.getProgram().getLabels().get(operand));
+                    process.setPc(resolveLabel(process, operand));
                 } else {
                     process.setPc(process.getPc() + 1);
                 }
             }
             case "BRZERO" -> {
                 if (process.getAcc() == 0) {
-                    process.setPc(process.getProgram().getLabels().get(operand));
+                    process.setPc(resolveLabel(process, operand));
                 } else {
                     process.setPc(process.getPc() + 1);
                 }
             }
             case "BRNEG" -> {
                 if (process.getAcc() < 0) {
-                    process.setPc(process.getProgram().getLabels().get(operand));
+                    process.setPc(resolveLabel(process, operand));
                 } else {
                     process.setPc(process.getPc() + 1);
                 }
             }
             case "BRANY" -> {
-                process.setPc(process.getProgram().getLabels().get(operand));
+                process.setPc(resolveLabel(process, operand));
             }
             case "SYSCALL" -> {
                 int code = Integer.parseInt(operand);
@@ -69,6 +73,8 @@ public class ExecutionEngine {
                 }
                 if (code == 1) {
                     System.out.println("[" + process.getName() + "] ACC = " + process.getAcc());
+                } else if (code != 2) {
+                    throw new RuntimeException("SYSCALL desconhecido: " + code + " no processo: " + process.getName());
                 }
                 int blockTime = 1 + random.nextInt(3);
                 process.setBlockedUntil(currentTick + blockTime);
@@ -83,9 +89,20 @@ public class ExecutionEngine {
     }
 
     private int resolveValue(Process process, String operand, boolean immediate) {
+        if (operand == null) {
+            throw new RuntimeException("Instrução sem operando no processo: " + process.getName());
+        }
         if (immediate) {
             return Integer.parseInt(operand);
         }
         return process.getMemory().load(operand);
+    }
+
+    private int resolveLabel(Process process, String label) {
+        Integer target = process.getProgram().getLabels().get(label);
+        if (target == null) {
+            throw new RuntimeException("Label não encontrada: '" + label + "' no processo: " + process.getName());
+        }
+        return target;
     }
 }
