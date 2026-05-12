@@ -1,17 +1,36 @@
 package org.miniKernel;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import org.miniKernel.model.Instruction;
+import org.miniKernel.model.Program;
+import org.miniKernel.parser.Parser;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+public class Main {
+
+    public static void main(String[] args) {
+
+        Parser parser = new Parser();
+
+        Program program = parser.parse("C:\\Users\\JulliaRoss\\Documents\\sistemasOperacionais\\MiniKernel\\exemples\\loop.asm");
+
+        System.out.println("===== INSTRUCTIONS =====");
+
+        for (Instruction instruction : program.getInstructions()) {
+
+            System.out.println(
+                    instruction.getOpcode()
+                            + " | "
+                            + instruction.getOperand()
+                            + " | immediate="
+                            + instruction.isImmediate()
+            );
         }
+
+        System.out.println("\n===== LABELS =====");
+
+        System.out.println(program.getLabels());
+
+        System.out.println("\n===== DATA =====");
+
+        System.out.println(program.getData());
     }
 }
