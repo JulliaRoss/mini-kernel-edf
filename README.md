@@ -2,6 +2,8 @@
 
 Projeto desenvolvido para a disciplina de Sistemas Operacionais.
 
+Desenvolvido por: Guilherme Messer, Jullia Ross, Matheus Zanchetta e Lucas Vinhatti
+
 ## Objetivo
 
 Simular a execução dinâmica de processos utilizando:
