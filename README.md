@@ -1,6 +1,7 @@
 # TP1 - Simulador de Escalonamento EDF
 
 Projeto desenvolvido para a disciplina de Sistemas Operacionais.
+Por: Guilherme Messer, Jullia Ross, Matheus Zanchetta e Lucas Vinhatti.
 
 ## Objetivo
 
