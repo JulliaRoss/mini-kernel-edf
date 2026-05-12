@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($mvn = \"C:\\\\Users\\\\mathe\\\\.m2\\\\wrapper\\\\dists\\\\apache-maven-3.9.11-bin\\\\6mqf5t809d9geo83kj4ttckcbc\\\\apache-maven-3.9.11\\\\bin\\\\mvn.cmd\"; Set-Location \"c:\\\\Users\\\\mathe\\\\mini-kernel-edf\"; & $mvn compile 2>&1 | Select-Object -Last 20)",
+      "PowerShell($mvn = \"C:\\\\Users\\\\mathe\\\\.m2\\\\wrapper\\\\dists\\\\apache-maven-3.9.11-bin\\\\6mqf5t809d9geo83kj4ttckcbc\\\\apache-maven-3.9.11\\\\bin\\\\mvn.cmd\"; Set-Location \"c:\\\\Users\\\\mathe\\\\mini-kernel-edf\"; $input = \"1`nP1`nexemples\\\\loop.asm`n0`n20`n10`n\"; $input | & $mvn -q exec:java \"-Dexec.mainClass=org.miniKernel.Main\" 2>&1)",
+      "Bash(java -cp \"target/classes\" org.miniKernel.Main)"
+    ]
+  }
+}

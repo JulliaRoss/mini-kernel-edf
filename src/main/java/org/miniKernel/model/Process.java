@@ -9,7 +9,8 @@ public class Process {
     private final int arrivalTime;
     private final int computationTime;
     private final int period;
-    private final int deadline;
+    private int deadline;
+    private int executedTime;
     private ProcessState state;
     private final Program program;
     private final Memory memory;
@@ -26,6 +27,7 @@ public class Process {
         this.deadline = deadline;
         this.pc = 0;
         this.acc = 0;
+        this.executedTime = 0;
         this.state = ProcessState.READY;
         this.memory = new Memory(program.getData());
         this.blockedUntil = 0;
@@ -40,8 +42,21 @@ public class Process {
     public int getComputationTime() { return computationTime; }
     public int getPeriod() { return period; }
     public int getDeadline() { return deadline; }
+    public void setDeadline(int deadline) { this.deadline = deadline; }
+    public int getExecutedTime() { return executedTime; }
+    public void incrementExecutedTime() { this.executedTime++; }
     public ProcessState getState() { return state; }
     public void setState(ProcessState state) { this.state = state; }
+
+    public void resetForNextPeriod() {
+        this.pc = 0;
+        this.acc = 0;
+        this.executedTime = 0;
+        this.blockedUntil = 0;
+        this.deadline += this.period;
+        this.memory.reset(this.program.getData());
+        this.state = ProcessState.READY;
+    }
     public Program getProgram() { return program; }
     public Memory getMemory() { return memory; }
     public int getBlockedUntil() { return blockedUntil; }

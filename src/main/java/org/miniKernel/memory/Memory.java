@@ -20,4 +20,9 @@ public class Memory {
     public void store(String var, int value) {
         data.put(var, value);
     }
+
+    public void reset(Map<String, Integer> initial) {
+        data.clear();
+        data.putAll(initial);
+    }
 }
