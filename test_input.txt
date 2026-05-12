@@ -1,0 +1,6 @@
+1
+P1
+exemples\loop.asm
+0
+20
+10
