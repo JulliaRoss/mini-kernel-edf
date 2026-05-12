@@ -1,4 +1,5 @@
 package org.miniKernel.model;
 
-public class ProcessState {
+public enum ProcessState {
+    READY, RUNNING, BLOCKED, FINISHED
 }
