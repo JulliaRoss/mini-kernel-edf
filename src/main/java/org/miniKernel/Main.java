@@ -4,53 +4,212 @@ import org.miniKernel.model.Process;
 import org.miniKernel.model.Program;
 import org.miniKernel.parser.Parser;
 import org.miniKernel.scheduler.KernelSimulator;
+import org.miniKernel.ui.ConsoleUI;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
+/**
+ * Ponto de entrada do Mini-Kernel EDF.
+ *
+ * Responsabilidades aqui (Pessoa 4 - Interface/Integração):
+ *  - Apresentar banner e menu de carga
+ *  - Coletar os dados dos processos (nome, .asm, arrivalTime, Ci, Pi)
+ *      diretamente do teclado OU a partir de um arquivo de configuração
+ *  - Disparar a simulação chamando o KernelSimulator com a UI já injetada
+ *
+ * sch_pol = 1 (EDF), conforme exigido no enunciado.
+ *
+ * Formato do arquivo de configuração (modo arquivo):
+ *   linha 1: N            -> número de processos
+ *   para cada processo, 5 linhas:
+ *       nome
+ *       caminho do .asm
+ *       arrivalTime
+ *       Ci
+ *       Pi
+ */
 public class Main {
 
+    private static final int SCH_POL_EDF = 1;
+
     public static void main(String[] args) {
-        int sch_pol = 1; // 1 = EDF
-
-        Scanner scanner = new Scanner(System.in);
+        ConsoleUI ui = new ConsoleUI();
         Parser parser = new Parser();
-        List<Process> processes = new ArrayList<>();
+        ui.printBanner();
 
-        System.out.println("=== Mini-Kernel EDF Simulator ===");
-        System.out.print("Quantos processos deseja carregar? ");
-        int n = Integer.parseInt(scanner.nextLine().trim());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        List<Process> processes;
+        try {
+            processes = loadProcesses(reader, parser, ui, args);
+        } catch (Exception e) {
+            ui.printError("Falha ao carregar processos: " + e.getMessage());
+            return;
+        }
+
+        if (processes.isEmpty()) {
+            ui.printError("Nenhum processo carregado. Encerrando.");
+            return;
+        }
+
+        ui.printLoadedProcesses(processes);
+        ui.printSimulationStart(processes.size(), SCH_POL_EDF);
+
+        KernelSimulator simulator = new KernelSimulator(processes, ui);
+        simulator.run();
+
+        ui.printSimulationEnd();
+    }
+
+    /* ===================== Menu / Carga ===================== */
+
+    private static List<Process> loadProcesses(BufferedReader reader,
+                                               Parser parser,
+                                               ConsoleUI ui,
+                                               String[] args) throws IOException {
+        // Se passou caminho na linha de comando, usa modo arquivo direto
+        if (args != null && args.length >= 1) {
+            return loadFromFile(args[0], parser);
+        }
+
+        while (true) {
+            System.out.println("Escolha o modo de carga dos processos:");
+            System.out.println("  [1] Entrada manual pelo teclado");
+            System.out.println("  [2] Carregar a partir de um arquivo de configuração");
+            System.out.print("Opção: ");
+            String opt = reader.readLine();
+            if (opt == null) {
+                return List.of();
+            }
+            opt = opt.trim();
+
+            switch (opt) {
+                case "1" -> {
+                    return loadManually(reader, parser, ui);
+                }
+                case "2" -> {
+                    System.out.print("Caminho do arquivo de configuração: ");
+                    String path = reader.readLine();
+                    if (path == null || path.isBlank()) {
+                        ui.printError("Caminho inválido.");
+                        continue;
+                    }
+                    try {
+                        return loadFromFile(path.trim(), parser);
+                    } catch (Exception e) {
+                        ui.printError(e.getMessage());
+                    }
+                }
+                default -> ui.printError("Opção inválida. Digite 1 ou 2.");
+            }
+        }
+    }
+
+    private static List<Process> loadManually(BufferedReader reader,
+                                              Parser parser,
+                                              ConsoleUI ui) throws IOException {
+        int n = readInt(reader, "Quantos processos deseja carregar? ", ui, 1, 100);
+        List<Process> processes = new ArrayList<>(n);
 
         for (int i = 0; i < n; i++) {
             System.out.println("\n--- Processo " + (i + 1) + " ---");
 
-            System.out.print("Nome: ");
-            String name = scanner.nextLine().trim();
-
-            System.out.print("Caminho do arquivo .asm: ");
-            String path = scanner.nextLine().trim();
-
-            System.out.print("Tempo de chegada (arrivalTime): ");
-            int arrivalTime = Integer.parseInt(scanner.nextLine().trim());
-
-            System.out.print("Tempo de computacao (Ci): ");
-            int computationTime = Integer.parseInt(scanner.nextLine().trim());
-
-            System.out.print("Periodo (Pi): ");
-            int period = Integer.parseInt(scanner.nextLine().trim());
+            String name = readNonEmpty(reader, "Nome: ", ui);
+            String path = readNonEmpty(reader, "Caminho do arquivo .asm: ", ui);
+            int arrival = readInt(reader, "Tempo de chegada (arrivalTime): ", ui, 0, 100000);
+            int ci = readInt(reader, "Tempo de computação (Ci): ", ui, 1, 100000);
+            int pi = readInt(reader, "Período (Pi): ", ui, 1, 100000);
 
             Program program = parser.parse(path);
-            // absoluteDeadline inicial = arrivalTime + period  (d_i = P_i)
-            int deadline = arrivalTime + period;
-            processes.add(new Process(name, program, arrivalTime, computationTime, period, deadline));
+            int deadline = arrival + pi;
+            processes.add(new Process(name, program, arrival, ci, pi, deadline));
+        }
+        return processes;
+    }
+
+    private static List<Process> loadFromFile(String configPath, Parser parser) throws IOException {
+        List<String> rawLines = Files.readAllLines(Path.of(configPath));
+        // Remove linhas vazias / comentários iniciados com '#'
+        List<String> lines = new ArrayList<>();
+        for (String l : rawLines) {
+            String s = l.trim();
+            if (s.isEmpty() || s.startsWith("#")) {
+                continue;
+            }
+            lines.add(s);
         }
 
-        System.out.println("\n=== Iniciando simulacao EDF (sch_pol=" + sch_pol + ") ===\n");
-        KernelSimulator simulator = new KernelSimulator(processes);
-        simulator.run();
-        System.out.println("\n=== Simulacao encerrada ===");
+        if (lines.isEmpty()) {
+            throw new RuntimeException("Arquivo de configuração vazio: " + configPath);
+        }
 
-        scanner.close();
+        int n = Integer.parseInt(lines.get(0));
+        int expected = 1 + (n * 5);
+        if (lines.size() < expected) {
+            throw new RuntimeException(
+                    "Arquivo de configuração incompleto. Esperado " + expected +
+                    " linhas úteis, encontrado " + lines.size());
+        }
+
+        List<Process> processes = new ArrayList<>(n);
+        int idx = 1;
+        for (int i = 0; i < n; i++) {
+            String name = lines.get(idx++);
+            String path = lines.get(idx++);
+            int arrival = Integer.parseInt(lines.get(idx++));
+            int ci = Integer.parseInt(lines.get(idx++));
+            int pi = Integer.parseInt(lines.get(idx++));
+
+            Program program = parser.parse(path);
+            int deadline = arrival + pi;
+            processes.add(new Process(name, program, arrival, ci, pi, deadline));
+        }
+        return processes;
+    }
+
+    /* ===================== Helpers de input ===================== */
+
+    private static int readInt(BufferedReader reader, String prompt,
+                               ConsoleUI ui, int min, int max) throws IOException {
+        while (true) {
+            System.out.print(prompt);
+            String line = reader.readLine();
+            if (line == null) {
+                throw new IOException("Entrada interrompida.");
+            }
+            try {
+                int v = Integer.parseInt(line.trim());
+                if (v < min || v > max) {
+                    ui.printError("Valor fora do intervalo [" + min + ", " + max + "].");
+                    continue;
+                }
+                return v;
+            } catch (NumberFormatException e) {
+                ui.printError("Digite um número inteiro válido.");
+            }
+        }
+    }
+
+    private static String readNonEmpty(BufferedReader reader, String prompt,
+                                       ConsoleUI ui) throws IOException {
+        while (true) {
+            System.out.print(prompt);
+            String line = reader.readLine();
+            if (line == null) {
+                throw new IOException("Entrada interrompida.");
+            }
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) {
+                ui.printError("Valor não pode ser vazio.");
+                continue;
+            }
+            return trimmed;
+        }
     }
 }

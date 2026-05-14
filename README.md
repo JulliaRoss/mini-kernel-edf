@@ -105,7 +105,7 @@ Responsável: Jullia Ross
 Responsável: Guilherme Messer
 
 ## Scheduler EDF
-Responsável: Fulano
+Responsável: Matheus Zanchetta
 
 ## Interface / Logs
-Responsável: Fulano
+Responsável: Lucas Vinhatti
