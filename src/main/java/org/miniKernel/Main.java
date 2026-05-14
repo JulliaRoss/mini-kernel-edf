@@ -14,26 +14,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Ponto de entrada do Mini-Kernel EDF.
- *
- * Responsabilidades aqui (Pessoa 4 - Interface/Integração):
- *  - Apresentar banner e menu de carga
- *  - Coletar os dados dos processos (nome, .asm, arrivalTime, Ci, Pi)
- *      diretamente do teclado OU a partir de um arquivo de configuração
- *  - Disparar a simulação chamando o KernelSimulator com a UI já injetada
- *
- * sch_pol = 1 (EDF), conforme exigido no enunciado.
- *
- * Formato do arquivo de configuração (modo arquivo):
- *   linha 1: N            -> número de processos
- *   para cada processo, 5 linhas:
- *       nome
- *       caminho do .asm
- *       arrivalTime
- *       Ci
- *       Pi
- */
 public class Main {
 
     private static final int SCH_POL_EDF = 1;
@@ -67,13 +47,10 @@ public class Main {
         ui.printSimulationEnd();
     }
 
-    /* ===================== Menu / Carga ===================== */
-
     private static List<Process> loadProcesses(BufferedReader reader,
                                                Parser parser,
                                                ConsoleUI ui,
                                                String[] args) throws IOException {
-        // Se passou caminho na linha de comando, usa modo arquivo direto
         if (args != null && args.length >= 1) {
             return loadFromFile(args[0], parser);
         }
@@ -135,7 +112,6 @@ public class Main {
 
     private static List<Process> loadFromFile(String configPath, Parser parser) throws IOException {
         List<String> rawLines = Files.readAllLines(Path.of(configPath));
-        // Remove linhas vazias / comentários iniciados com '#'
         List<String> lines = new ArrayList<>();
         for (String l : rawLines) {
             String s = l.trim();
@@ -172,8 +148,6 @@ public class Main {
         }
         return processes;
     }
-
-    /* ===================== Helpers de input ===================== */
 
     private static int readInt(BufferedReader reader, String prompt,
                                ConsoleUI ui, int min, int max) throws IOException {

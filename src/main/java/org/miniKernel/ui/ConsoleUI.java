@@ -7,24 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Camada de visualização do simulador.
- *
- * Responsabilidades (Pessoa 4):
- *  - Banner / mensagens de status do sistema
- *  - Logs de eventos (chegada, desbloqueio, execução, syscall, deadline miss)
- *  - Tabela temporal (Gantt em ASCII) com todo o histórico
- *  - Resumo final (estatísticas por processo + globais)
- *
- * Todas as mensagens passam por aqui. O simulador NÃO imprime nada diretamente
- * em System.out — sempre delega para ConsoleUI. Isso facilita futuramente trocar
- * para outra forma de visualização (arquivo, GUI, JSON, etc.).
- */
 public class ConsoleUI {
 
     private static final String LINE = "============================================================";
-
-    /* ===================== Banner / Status ===================== */
 
     public void printBanner() {
         System.out.println();
@@ -56,8 +41,6 @@ public class ConsoleUI {
         System.out.printf("[!] Tempo máximo da simulação (%d) atingido.%n", maxTime);
     }
 
-    /* ===================== Resumo dos processos carregados ===================== */
-
     public void printLoadedProcesses(List<Process> processes) {
         System.out.println();
         System.out.println("--- Processos carregados ---");
@@ -75,8 +58,6 @@ public class ConsoleUI {
         System.out.println();
     }
 
-    /* ===================== Logs por tick ===================== */
-
     public void logArrival(int time, Process p) {
         System.out.printf("Time %3d | ARRIVED   | %-10s | Ci=%d Pi=%d Deadline=%d%n",
                 time, p.getName(), p.getComputationTime(), p.getPeriod(), p.getDeadline());
@@ -90,9 +71,6 @@ public class ConsoleUI {
         System.out.printf("Time %3d | IDLE%n", time);
     }
 
-    /**
-     * Imprime o log da execução de UMA instrução por um processo, no tick atual.
-     */
     public void logExecution(int time, Process p, ExecutionResult result) {
         String status = switch (result) {
             case CONTINUE -> "RUNNING ";
@@ -116,12 +94,6 @@ public class ConsoleUI {
                 time, p.getName(), p.getDeadline());
     }
 
-    /* ===================== Tabela temporal (Gantt) ===================== */
-
-    /**
-     * Imprime uma tabela tipo Gantt mostrando, tick a tick, qual processo executou.
-     * Limita-se a 80 colunas por linha para caber bem no terminal.
-     */
     public void printTimeline(Timeline timeline) {
         int total = timeline.getTotalTime();
         if (total == 0) {
@@ -161,15 +133,6 @@ public class ConsoleUI {
         }
     }
 
-    /* ===================== Resumo final ===================== */
-
-    /**
-     * Imprime o resumo da simulação:
-     *   - Total de ticks
-     *   - Ocupação de CPU por processo
-     *   - Ociosidade
-     *   - Deadlines perdidos por processo
-     */
     public void printSummary(Timeline timeline, Map<String, Integer> missedDeadlines) {
         System.out.println();
         System.out.println("--- Resumo da Simulação ---");
@@ -197,8 +160,6 @@ public class ConsoleUI {
             System.out.printf("Resultado: %d deadline(s) perdido(s) no total.%n", totalMisses);
         }
     }
-
-    /* ===================== Erros / mensagens auxiliares ===================== */
 
     public void printError(String message) {
         System.out.println("[ERRO] " + message);
