@@ -1,0 +1,12 @@
+# Config pequena, util para visualizar a tabela temporal de ponta a ponta
+2
+P1
+exemples/syscall.asm
+0
+5
+50
+P2
+exemples/contador.asm
+1
+4
+30

@@ -1,0 +1,26 @@
+# Arquivo de configuracao de exemplo para o Mini-Kernel EDF
+# Linhas iniciadas com '#' sao comentarios e sao ignoradas.
+# Formato:
+#   N
+#   (para cada processo:)
+#     nome
+#     caminho_do_asm
+#     arrivalTime
+#     Ci
+#     Pi
+3
+P1
+exemples/loop.asm
+0
+6
+20
+P2
+exemples/contador.asm
+2
+4
+15
+P3
+exemples/syscall.asm
+4
+3
+25
