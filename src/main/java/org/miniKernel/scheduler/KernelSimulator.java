@@ -23,7 +23,6 @@ public class KernelSimulator {
     private final List<Process> readyQueue;
     private final List<Process> blockedList;
 
-    // Tracks "name_deadline" pairs already reported to avoid duplicate DEADLINE MISS logs
     private final Set<String> reportedMisses = new HashSet<>();
 
     private int currentTime = 0;
@@ -66,7 +65,6 @@ public class KernelSimulator {
 
                 case CONTINUE -> {
                     if (current.getExecutedTime() >= current.getComputationTime()) {
-                        // Period complete: reset and re-activate with new deadline
                         current.resetForNextPeriod();
                         readyQueue.add(current);
                     } else {
