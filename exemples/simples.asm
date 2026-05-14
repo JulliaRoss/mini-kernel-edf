@@ -1,10 +1,10 @@
 .code
 LOAD x
-ADD #10
-STORE x
+volta: SUB #1
+BRPOS volta
 SYSCALL 0
 .endcode
 
 .data
-x 5
+x 3
 .enddata
