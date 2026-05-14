@@ -7,15 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Registra, tick a tick, qual processo ocupou a CPU.
- *
- * Marca especial:
- *   - "IDLE"  -> CPU ociosa (nenhum processo pronto)
- *   - "----"  -> usado apenas para visualização de slot vazio
- *
- * Usado pela ConsoleUI para imprimir a tabela temporal (Gantt) ao final.
- */
 public class Timeline {
 
     private final List<String> ticks = new ArrayList<>();
@@ -23,7 +14,6 @@ public class Timeline {
     private final Map<String, Integer> executionCount = new HashMap<>();
     private int idleTicks = 0;
 
-    /** Registra qual processo executou em um determinado tempo. */
     public void record(int time, String processName) {
         while (ticks.size() <= time) {
             ticks.add("IDLE");

@@ -16,25 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Loop principal do mini-kernel.
- *
- * O simulador NÃO imprime nada diretamente: todo o output passa pela ConsoleUI
- * (responsabilidade da Pessoa 4). Aqui apenas gerenciamos os estados, fila de
- * prontos, lista de bloqueados e a evolução do tempo.
- *
- * Em cada tick:
- *   1. Admite processos que chegaram (arrivalTime <= currentTime)
- *   2. Desbloqueia processos cujo bloqueio expirou
- *   3. Reporta deadlines perdidos
- *   4. Escalonador EDF escolhe o próximo a executar
- *   5. CPU executa 1 instrução do processo
- *   6. Atualiza Timeline / estatísticas
- *   7. Conforme o resultado: continua, bloqueia ou finaliza
- *
- * Suporta tarefas periódicas: ao completar Ci instruções em um período,
- * o processo é reativado com novo absoluteDeadline (= deadline atual + Pi).
- */
 public class KernelSimulator {
 
     private static final int MAX_TIME = 500;
@@ -94,7 +75,6 @@ public class KernelSimulator {
 
                 case CONTINUE -> {
                     if (current.getExecutedTime() >= current.getComputationTime()) {
-                        // Período concluído: reativa com novo deadline absoluto
                         current.resetForNextPeriod();
                         readyQueue.add(current);
                     } else {
@@ -114,8 +94,6 @@ public class KernelSimulator {
         ui.printTimeline(timeline);
         ui.printSummary(timeline, missedDeadlines);
     }
-
-    /* ===================== Hooks do loop ===================== */
 
     private void admitArrivals() {
         Iterator<Process> it = pending.iterator();
